@@ -101,5 +101,5 @@ fn main() {
 
     println!("{:?}", f5);
     println!("{} is {} bytes long", f5.name, f5.len());
-    println!("{}", f5.to_string())
+    println!("{}", f5.to_string());
 }
