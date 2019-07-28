@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+//! Simulating files one step at a time.
 
 extern crate rand;
 use rand::Rng;
@@ -9,14 +9,16 @@ fn one_in(n: u32) -> bool {
     rand::thread_rng().gen_weighted_bool(n)
 }
 
+// Represents the allowed states of a "file".
 #[derive(Debug, PartialEq)]
-enum FileState {
+pub enum FileState {
     Open,
     Closed,
 }
 
+/// Represents a "file", which probably lives on a file system.
 #[derive(Debug)]
-struct File {
+pub struct File {
     name: String,
     data: Vec<u8>,
     state: FileState,
@@ -38,7 +40,14 @@ impl Display for File {
 }
 
 impl File {
-    fn new(name: &str) -> File {
+    /// Creates a new, empty 'File'.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let f = File::new("f1.txt");
+    /// ```
+    pub fn new(name: &str) -> File {
         File {
             name: String::from(name),
             data: Vec::new(),
@@ -46,17 +55,31 @@ impl File {
         }
     }
 
-    fn new_with_data(name: &str, data: &Vec<u8>) -> File {
+    /// Creates a new file with the provided name and value for the data.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let f = File::new_with_data("f.txt", &vec![123, 111]);s
+    /// ```
+    pub fn new_with_data(name: &str, data: &Vec<u8>) -> File {
         let mut f = File::new(name);
         f.data = data.clone();
         f
     }
 
-    fn len(self: &File) -> usize {
+    // Returns the file's length in bytes.
+    pub fn len(self: &File) -> usize {
         self.data.len()
     }
 
-    fn read(self: &File, save_to: &mut Vec<u8>) -> Result<usize, String> {
+    // Returns the file's name.
+    pub fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    // Reads the given file and saves it to the mutable vector provided.
+    pub fn read(self: &File, save_to: &mut Vec<u8>) -> Result<usize, String> {
         let mut tmp = self.data.clone();
         let read_length = tmp.len();
         save_to.reserve(read_length);
@@ -64,7 +87,8 @@ impl File {
         Ok(read_length)
     }
 
-    fn to_string(self: &File) -> String {
+    // Returns the data of a file in string format.
+    pub fn to_string(self: &File) -> String {
         String::from_utf8_lossy(&self.data).to_string()
     }
 }
