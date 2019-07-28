@@ -5,10 +5,17 @@ fn one_in(n: u32) -> bool {
     rand::thread_rng().gen_weighted_bool(n)
 }
 
+#[derive(Debug, PartialEq)]
+enum FileState {
+    Open,
+    Closed,
+}
+
 #[derive(Debug)]
 struct File {
     name: String,
     data: Vec<u8>,
+    state: FileState,
 }
 
 impl File {
@@ -16,6 +23,7 @@ impl File {
         File {
             name: String::from(name),
             data: Vec::new(),
+            state: FileState::Closed,
         }
     }
 
@@ -42,19 +50,21 @@ impl File {
     }
 }
 
-fn open(f: File) -> Result<File, String> {
+fn open(mut f: File) -> Result<File, String> {
     if one_in(10_000) {
         let err_msg = String::from("Permission denied");
         return Err(err_msg);
     }
+    f.state = FileState::Open;
     Ok(f)
 }
 
-fn close(f: File) -> Result<File, String> {
+fn close(mut f: File) -> Result<File, String> {
     if one_in(10_000) {
         let err_msg = String::from("Interrupted by signal!");
         return Err(err_msg);
     }
+    f.state = FileState::Closed;
     Ok(f)
 }
 
@@ -63,6 +73,10 @@ fn main() {
     let mut f = File::new_with_data("f.txt", &f_data);
 
     let mut buffer: Vec<u8> = vec![];
+
+    if f.read(&mut buffer).is_err() {
+        println!("Error checking is working");
+    }
 
     f = open(f).unwrap();
     let f_length = f.read(&mut buffer).unwrap();
@@ -74,5 +88,7 @@ fn main() {
     println!("{} is {} bytes long", &f.name, f.len());
     println!("{} is f_length", f_length);
     println!("{} is File::to_string", f.to_string());
+    // Following along in the book, but this will actually be: rust!rust!
+    // Mutable is mutable, so the error check reads it
     println!("{} is buffer", text);
 }
